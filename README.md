@@ -50,7 +50,7 @@ mkdir pretrain_datasets
 To transform image-text pairs to fit the MVP input, there are several steps: 
 
 1. We utilize the off-the-shelf scene graph parser provided in [SPICE](https://github.com/peteanderson80/SPICE) to extract tuples from text, which are considered as phrase concepts.
-2. Only general phrases which appear in at least 50 sentences in the pre-training corpus are considered, the id2phrase mapping is stored in [id2phrase](). Extracted phrases for coco, Flickr, vqa are stored in ./phrases/
+2. Only general phrases which appear in at least 50 sentences in the pre-training corpus are considered, the id2phrase mapping is stored in [id2phrase](). Extracted phrases for coco, Flickr, vqa, visual entailment, referring expression can be downloaded from [here](https://drive.google.com/file/d/1fl8vXvxw9ZXmLaQ6a_4KrM-Zi1w_PgwN/view?usp=sharing).
 3. Object features and tags are extracted from images with [the object detector used in VinVL](https://github.com/microsoft/scene_graph_benchmark).
 
 For dataset list below, preprocessed data is provided, if you need to adopt MVP to other dataset, please follow the steps.
@@ -206,7 +206,7 @@ Here is the detailed evaluation results from the VQA challange on EvalAI:
 
 1. Download the dataset:
 
-2. Download the pre-trained checkpoint:
+2. Download the pre-trained checkpoint: [mvp_base](https://drive.google.com/file/d/1t9S9ejwpit7UO_Y5f9pYnn7p9g-AtWtC/view?usp=sharing)
 
 3. Training:
 
@@ -243,7 +243,7 @@ Here is the detailed evaluation results from the VQA challange on EvalAI:
 
 1. Download the dataset:
 
-2. Download the pre-trained checkpoint:
+2. Download the pre-trained checkpoint: [mvp_base](https://drive.google.com/file/d/1t9S9ejwpit7UO_Y5f9pYnn7p9g-AtWtC/view?usp=sharing)
 
 3. Training:
 
