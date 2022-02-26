@@ -64,7 +64,8 @@ To download extracted features used in VinVL and MVP, it is recommended to use [
 As the original pre-trained VinVL uses the test split of Flickr30k during pre-training, we exclude those data and pre-train our MVP to avoid the information leaking:
 
 1. Download the pre-trained checkpoint for flickr30k retrieval:
-2. Download the extracted features and captions from:
+
+2. Download the extracted features and captions from: [fk_ir](https://drive.google.com/file/d/1L4xXrk3q0e6DsBiucJkUFWbxqPLtzRjY/view?usp=sharing)
 
 3. Training with evaluation on the validation split:
 
@@ -204,7 +205,7 @@ Here is the detailed evaluation results from the VQA challange on EvalAI:
 
 ### SNLI-VE
 
-1. Download the dataset:
+1. Download the dataset: coming soon.
 
 2. Download the pre-trained checkpoint: [mvp_base](https://drive.google.com/file/d/1t9S9ejwpit7UO_Y5f9pYnn7p9g-AtWtC/view?usp=sharing)
 
@@ -239,9 +240,9 @@ Here is the detailed evaluation results from the VQA challange on EvalAI:
        --max_tag_length 20 --bivinvl_id2phrase datasets/mvp/id2phrase_new.json
    ```
 
-### Refferring Expression
+### Referring Expression
 
-1. Download the dataset:
+1. Download the dataset: [re](https://drive.google.com/file/d/1DmDM351JQdaTbS-WwU7VtxwJX5QitKUY/view?usp=sharing), we also re-use the tsv-format coco data.
 
 2. Download the pre-trained checkpoint: [mvp_base](https://drive.google.com/file/d/1t9S9ejwpit7UO_Y5f9pYnn7p9g-AtWtC/view?usp=sharing)
 
