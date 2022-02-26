@@ -28,10 +28,21 @@ For full results, please refer to our paper.
 ### Installation
 
 ```bash
+# create environment
+conda create --name mvp python=3.7
+conda activate mvp
+
+# install pytorch1.7
+pip install torch==1.7.1+cu101 torchvision==0.8.2+cu101 torchaudio==0.7.2 -f https://download.pytorch.org/whl/torch_stable.html
+
+# run setup
 python setup.py build develop
 
 # install requirements
 pip install -r requirements.txt
+
+mkdir pretrained_models
+mkdir pretrain_datasets
 ```
 
 ### Data Preprocess:

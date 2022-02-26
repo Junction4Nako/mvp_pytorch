@@ -1,0 +1,639 @@
+python oscar/run_retrieval2.py \
+    --model_name_or_path pretrained_models/base-vg-labels/ep_67_588997 \
+    --do_train \
+    --do_lower_case \
+    --evaluate_during_training \
+    --num_captions_per_img_val 20 \
+    --eval_caption_index_file minival_caption_indexs_top20.pt \
+    --per_gpu_train_batch_size 16 \
+    --per_gpu_eval_batch_size 32 \
+    --learning_rate 0.00002 \
+    --num_train_epochs 30 \
+    --weight_decay 0.05 \
+    --save_steps 5000 \
+    --add_od_labels \
+    --od_label_type vg \
+    --max_seq_length 70 \
+    --output_dir output/
+
+
+# 1K Coco
+python oscar/run_retrieval2.py \
+    --do_test \
+    --do_eval \
+    --test_split test \
+    --num_captions_per_img_val 5 \
+    --eval_img_keys_file test_img_keys_1k.tsv \
+    --cross_image_eval \
+    --per_gpu_eval_batch_size 320 \
+    --eval_model_dir output/checkpoint-5-30000
+
+
+# Flickr30k val zero_shot
+python oscar/run_retrieval2.py \
+    --data_dir datasets/fk_ir \
+    --do_test \
+    --do_eval \
+    --test_split val \
+    --num_captions_per_img_val 5 \
+    --eval_img_keys_file val_img_keys.tsv \
+    --cross_image_eval \
+    --per_gpu_eval_batch_size 640 \
+    --eval_model_dir pretrained_models/base-vg-labels/ep_67_588997
+
+# Flickr30k Training
+python oscar/run_retrieval2.py \
+    --model_name_or_path pretrained_models/base-vg-labels/ep_67_588997 \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_train \
+    --do_lower_case \
+    --per_gpu_train_batch_size 2 \
+    --learning_rate 0.00002 \
+    --num_train_epochs 30 \
+    --weight_decay 0.05 \
+    --save_steps 5000 \
+    --add_od_labels \
+    --od_label_type vg \
+    --max_seq_length 70 \
+    --output_dir output_fk/
+
+# Flickr30k val fine-tuned
+python oscar/run_retrieval2.py \
+    --data_dir datasets/fk_ir \
+    --do_test \
+    --do_eval \
+    --test_split val \
+    --num_captions_per_img_val 5 \
+    --eval_img_keys_file val_img_keys.tsv \
+    --cross_image_eval \
+    --per_gpu_eval_batch_size 640 \
+    --eval_model_dir output_fk/checkpoint-23-15000
+
+
+# Flickr30k Training with new provided features
+python oscar/run_retrieval2.py \
+    --model_name_or_path pretrained_models/base-vg-labels/ep_67_588997 \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_train \
+    --do_lower_case \
+    --per_gpu_train_batch_size 32 \
+    --learning_rate 0.00002 \
+    --num_train_epochs 30 \
+    --weight_decay 0.05 \
+    --save_steps 5000 \
+    --add_od_labels \
+    --od_label_type vg \
+    --max_seq_length 70 \
+    --output_dir output_fk/vinvl
+
+# Flickr30k Training with new provided features and oscar+
+python oscar/run_retrieval2.py \
+    --model_name_or_path vinvl/coco_ir/base/checkpoint-1340000 \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_train \
+    --do_lower_case \
+    --per_gpu_train_batch_size 32 \
+    --learning_rate 0.00002 \
+    --num_train_epochs 30 \
+    --weight_decay 0.05 \
+    --save_steps 5000 \
+    --add_od_labels \
+    --od_label_type vg \
+    --max_seq_length 70 \
+    --max_img_seq_length 70 \
+    --output_dir output_fk/oscar_p
+
+# Flickr30k zero_shot oscar+
+python oscar/run_retrieval2.py \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_test \
+    --do_eval \
+    --test_split val \
+    --num_captions_per_img_val 5 \
+    --eval_img_keys_file val_img_keys.tsv \
+    --cross_image_eval \
+    --per_gpu_eval_batch_size 320 \
+    --eval_model_dir vinvl/coco_ir/base/checkpoint-1340000 \
+    --output_dir output_fk/vinvl
+
+# Flickr30k fine-tuning evaluation with new provided features
+python oscar/run_retrieval2.py \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_test \
+    --do_eval \
+    --test_split val \
+    --num_captions_per_img_val 5 \
+    --eval_img_keys_file val_img_keys.tsv \
+    --cross_image_eval \
+    --per_gpu_eval_batch_size 320 \
+    --eval_model_dir output_fk/vinvl/checkpoint-26-15000 \
+    --output_dir output_fk/vinvl
+
+# Flickr30k + extra_labels
+python3 oscar/run_retrieval3.py \
+    --model_name_or_path output/pretrain_baseline2/checkpoint-0500000/ \
+    --data_dir datasets/fk_ir \
+    --do_train \
+    --do_lower_case \
+    --per_gpu_train_batch_size 16 \
+    --learning_rate 0.00002 \
+    --num_train_epochs 30 \
+    --weight_decay 0.05 \
+    --save_steps 2000 \
+    --add_od_labels \
+    --od_label_type vg \
+    --max_seq_length 70 \
+    --evaluate_during_training  --num_captions_per_img_val 20 \
+    --eval_caption_index_file val_caption_indexs_top20.pt \
+    --max_img_seq_length 70  --dataset_name flickr \
+    --max_visual_theme 3  --max_phrases 5  --sent_sg datasets/fk_ir/fk_sg.pt \
+    --node2id datasets/fk_ir/phrase2id.json --img2theme datasets/fk_ir/img2theme.json \
+    --output_dir output_fk/vinvl_extra
+
+python3 oscar/run_retrieval3.py \
+    --model_name_or_path tmp_model/checkpoint-0500000/ \
+    --data_dir datasets/fk_ir \
+    --do_train \
+    --do_lower_case \
+    --per_gpu_train_batch_size 16 \
+    --learning_rate 0.00002 \
+    --num_train_epochs 30 \
+    --weight_decay 0.05 \
+    --save_steps 2000 \
+    --add_od_labels \
+    --od_label_type vg \
+    --max_seq_length 70 \
+    --evaluate_during_training  --num_captions_per_img_val 20 \
+    --eval_caption_index_file val_caption_indexs_top20.pt \
+    --max_img_seq_length 70  --dataset_name flickr \
+    --max_visual_theme 0  --max_phrases 5  --sent_sg datasets/fk_ir/fk_sg.pt \
+    --node2id datasets/fk_ir/phrase2id.json --img2theme datasets/fk_ir/img2theme.json \
+    --output_dir output_fk/vinvl_extra2
+
+python3 oscar/run_retrieval3.py \
+    --model_name_or_path tmp_model/checkpoint-1000000/ \
+    --data_dir datasets/fk_ir \
+    --do_train \
+    --do_lower_case \
+    --per_gpu_train_batch_size 64 \
+    --learning_rate 0.00002 \
+    --num_train_epochs 30 \
+    --weight_decay 0.05 \
+    --save_steps 200 \
+    --add_od_labels \
+    --od_label_type vg \
+    --max_seq_length 70 \
+    --evaluate_during_training  --num_captions_per_img_val 20 \
+    --eval_caption_index_file val_caption_indexs_top20.pt \
+    --max_img_seq_length 70  --dataset_name flickr \
+    --max_visual_theme 0  --max_phrases 5  --sent_sg datasets/fk_ir/fk_sg.pt \
+    --node2id datasets/fk_ir/phrase2id.json --img2theme datasets/fk_ir/img2theme.json \
+    --output_dir output_fk/vinvl_extra
+
+# evaluation for the above model
+python3 oscar/run_retrieval3.py \
+    --data_dir datasets/fk_ir \
+    --do_test \
+    --do_eval \
+    --test_split test \
+    --cross_image_eval \
+    --eval_img_keys_file test_img_keys.tsv \
+    --per_gpu_eval_batch_size 64 \
+    --eval_model_dir output_fk/vinvl_extra2/checkpoint-28-32000 \
+    --output_dir evaluate_fk/both --max_visual_theme 0  --max_phrases 5  --sent_sg datasets/fk_ir/fk_sg.pt \
+    --node2id datasets/fk_ir/phrase2id.json --img2theme datasets/fk_ir/img2theme.json
+
+
+deepspeed --include localhost:0,1,2,3 oscar/run_retrieval_deepspeed3.py \
+    --deepspeed_config oscar/tmp_config.json \
+    --model_name_or_path vinvl/coco_ir/base/checkpoint-1340000 \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_train \
+    --do_lower_case \
+    --per_gpu_train_batch_size 64 \
+    --learning_rate 0.00002 \
+    --num_train_epochs 10 \
+    --weight_decay 0.05 \
+    --save_steps 1000 \
+    --add_od_labels \
+    --od_label_type vg \
+    --max_seq_length 70 \
+    --max_img_seq_length 70 \
+    --evaluate_during_training \
+    --num_captions_per_img_val 20 \
+    --num_images_per_cap_val 20 \
+    --eval_caption_index_file val_caption_indexs_clipft.pt \
+    --eval_image_index_file val_image_indexs_clipft.pt \
+    --output_dir output_fk/vinvl_extra \
+    --extra_concept \
+    --num_extra_concept 5
+
+deepspeed --include localhost:0 oscar/run_retrieval_deepspeed2.py \
+    --deepspeed_config oscar/tmp_config.json \
+    --model_name_or_path vinvl/coco_ir/base/checkpoint-1340000_extra \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_train \
+    --do_lower_case \
+    --per_gpu_train_batch_size 1 \
+    --learning_rate 0.00002 \
+    --num_train_epochs 30 \
+    --weight_decay 0.01 \
+    --save_steps 2000 \
+    --add_od_labels \
+    --od_label_type vg \
+    --max_seq_length 70 \
+    --max_img_seq_length 70 \
+    --evaluate_during_training \
+    --num_captions_per_img_val 20 \
+    --num_images_per_cap_val 20 \
+    --eval_caption_index_file val_caption_indexs_clipft.pt \
+    --eval_image_index_file val_image_indexs_clipft.pt \
+    --output_dir output_fk/vinvl_extra \
+    --extra_concept \
+    --clip_neg_sampling \
+    --num_extra_concept 20 \
+    --concept2id_file extra_concept2id.pt
+
+deepspeed --include localhost:2,3 oscar/run_retrieval_deepspeed.py \
+    --deepspeed_config oscar/tmp_config.json \
+    --model_name_or_path vinvl/coco_ir/base/checkpoint-1340000 \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_test \
+    --do_eval \
+    --test_split val \
+    --num_captions_per_img_val 5 \
+    --cross_image_eval \
+    --eval_img_keys_file val_img_keys.tsv \
+    --per_gpu_eval_batch_size 640 \
+    --eval_model_dir output_fk/oscar_p/checkpoint-5-6000 \
+    --output_dir evaluate_fk/only_clip_hard_6000
+
+deepspeed --include localhost:0,1,2,3,4,5,6,7 oscar/run_retrieval_deepspeed.py \
+    --deepspeed_config oscar/tmp_config.json \
+    --model_name_or_path vinvl/coco_ir/base/checkpoint-1340000 \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_test \
+    --do_eval \
+    --test_split val \
+    --num_captions_per_img_val 5 \
+    --cross_image_eval \
+    --eval_img_keys_file val_img_keys.tsv \
+    --per_gpu_eval_batch_size 320 \
+    --eval_model_dir output_fk/oscar_p/checkpoint-9-15000 \
+    --output_dir evaluate_fk/both
+
+deepspeed --include localhost:0 oscar/run_retrieval_deepspeed.py \
+    --deepspeed_config oscar/tmp_config.json \
+    --model_name_or_path vinvl/coco_ir/base/checkpoint-1340000 \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_test \
+    --do_eval \
+    --test_split test \
+    --num_captions_per_img_val 20 \
+    --eval_caption_index_file test_pre_ranking.pt \
+    --eval_img_keys_file test_img_keys.tsv \
+    --per_gpu_eval_batch_size 160 \
+    --eval_model_dir output_fk/oscar_p/checkpoint-4-11330 \
+    --output_dir evaluate_fk/both
+
+deepspeed --include localhost:0,1,3 oscar/run_retrieval_deepspeed2.py \
+    --deepspeed_config oscar/tmp_config.json \
+    --model_name_or_path vinvl/coco_ir/base/checkpoint-1340000_extra \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_test \
+    --do_eval \
+    --test_split test \
+    --num_captions_per_img_val 20 \
+    --num_images_per_cap_val 20 \
+    --eval_caption_index_file test_caption_indexs_clipft.pt \
+    --eval_image_index_file test_image_indexs_clipft.pt \
+    --eval_img_keys_file test_img_keys.tsv \
+    --per_gpu_eval_batch_size 128 \
+    --eval_model_dir output_fk/vinvl/checkpoint-24-14000 \
+    --output_dir evaluate_fk/both \
+    --concept2id_file extra_concept2id.pt \
+    --extra_concept
+
+deepspeed --include localhost:0,1,2,3 oscar/run_retrieval_deepspeed2.py \
+    --deepspeed_config oscar/tmp_config.json \
+    --model_name_or_path vinvl/coco_ir/base/checkpoint-1340000 \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_test \
+    --do_eval \
+    --test_split test \
+    --num_captions_per_img_val 20 \
+    --num_images_per_cap_val 20 \
+    --eval_caption_index_file test_caption_indexs_clipft.pt \
+    --eval_image_index_file test_image_indexs_clipft.pt \
+    --eval_img_keys_file test_img_keys.tsv \
+    --per_gpu_eval_batch_size 128 \
+    --eval_model_dir output_fk/oscar_ph/checkpoint-29-17010 \
+    --output_dir evaluate_fk/both
+
+deepspeed --include localhost:2 oscar/run_retrieval_deepspeed2.py \
+    --deepspeed_config oscar/tmp_config.json \
+    --model_name_or_path vinvl/coco_ir/base/checkpoint-1340000 \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_test \
+    --do_eval \
+    --test_split val \
+    --num_captions_per_img_val 5 \
+    --cross_image_eval \
+    --eval_img_keys_file val_img_keys.tsv \
+    --per_gpu_eval_batch_size 160 \
+    --eval_model_dir output_fk/oscar_p/checkpoint-0-200 \
+    --output_dir evaluate_fk/both \
+    --print_zeroshot
+
+python oscar/run_retrieval3.py \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_test \
+    --do_eval \
+    --test_split val \
+    --num_captions_per_img_val 20 \
+    --eval_img_keys_file val_img_keys.tsv \
+    --eval_caption_index_file val_caption_indexs_top20.pt \
+    --per_gpu_eval_batch_size 320 \
+    --eval_model_dir output_fk/oscar_p/checkpoint-0-600 \
+    --output_dir evaluate_fk/both
+
+
+deepspeed --include localhost:0,1,2,3 oscar/run_retrieval_deepspeed2.py \
+    --deepspeed_config oscar/tmp_config.json \
+    --model_name_or_path vinvl/coco_ir/base/checkpoint-1340000 \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_train \
+    --do_lower_case \
+    --per_gpu_train_batch_size 64 \
+    --learning_rate 0.00002 \
+    --num_train_epochs 5 \
+    --weight_decay 0.05 \
+    --save_steps 800 \
+    --add_od_labels \
+    --od_label_type vg \
+    --max_seq_length 70 \
+    --max_img_seq_length 70 \
+    --evaluate_during_training \
+    --num_captions_per_img_val 20 \
+    --eval_caption_index_file val_caption_indexs_top20.pt \
+    --output_dir output_fk/vinvl \
+    --clip_neg_sampling
+
+
+
+deepspeed --include localhost:0,1,2,3 oscar_transformers/run_retrieval_deepspeed2.py \
+    --deepspeed_config oscar_transformers/tmp_config.json \
+    --model_name_or_path vinvl/coco_ir/base/checkpoint-1340000_extra \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_train \
+    --do_lower_case \
+    --per_gpu_train_batch_size 64 \
+    --learning_rate 0.00002 \
+    --num_train_epochs 30 \
+    --weight_decay 0.01 \
+    --save_steps 2000 \
+    --add_od_labels \
+    --fp16 \
+    --od_label_type vg \
+    --max_seq_length 70 \
+    --max_img_seq_length 70 \
+    --evaluate_during_training \
+    --num_captions_per_img_val 20 \
+    --num_images_per_cap_val 20 \
+    --eval_caption_index_file val_caption_indexs_clipft.pt \
+    --eval_image_index_file val_image_indexs_clipft.pt \
+    --output_dir output_fk/vinvl_extra \
+    --extra_concept \
+    --clip_neg_sampling \
+    --num_extra_concept 20 \
+    --concept2id_file extra_concept2id.pt
+
+
+deepspeed --include localhost:0,1,2,3 oscar/run_retrieval_deepspeed2.py \
+    --deepspeed_config oscar/tmp_config.json \
+    --model_name_or_path vinvl/coco_ir/base/checkpoint-1340000_extra \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_train \
+    --do_lower_case \
+    --per_gpu_train_batch_size 96 \
+    --learning_rate 0.00002 \
+    --num_train_epochs 30 \
+    --weight_decay 0.05 \
+    --save_steps 1500 \
+    --add_od_labels \
+    --od_label_type vg \
+    --max_seq_length 70 \
+    --max_img_seq_length 70 \
+    --evaluate_during_training \
+    --num_captions_per_img_val 20 \
+    --num_images_per_cap_val 20 \
+    --eval_caption_index_file val_pre_ranking2.pt \
+    --eval_image_index_file val_pre_ranking2.pt \
+    --try_reranking \
+    --output_dir output_fk/oscar_ph \
+    --extra_concept \
+    --clip_neg_sampling \
+    --clip_neg_prob 0.4 \
+    --num_extra_concept 20 \
+    --concept2id_file extra_concept2id.pt
+
+
+deepspeed --include localhost:0,1,2,3 oscar/run_retrieval_deepspeed2.py \
+    --deepspeed_config oscar/tmp_config.json \
+    --model_name_or_path vinvl/coco_ir/base/checkpoint-1340000_extra \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_test \
+    --do_eval \
+    --test_split test \
+    --num_captions_per_img_val 20 \
+    --num_images_per_cap_val 20 \
+    --eval_caption_index_file test_pre_ranking2.pt \
+    --eval_image_index_file test_pre_ranking2.pt \
+    --eval_img_keys_file test_img_keys.tsv \
+    --per_gpu_eval_batch_size 128 \
+    --eval_model_dir output_fk/oscar_p/checkpoint-17-5000 \
+    --output_dir evaluate_fk/both \
+    --concept2id_file extra_concept2id.pt \
+    --extra_concept \
+    --num_extra_concept 20 \
+    --try_reranking \
+    --test_prf 0.3
+
+
+deepspeed --include localhost:0,2,3 oscar/run_retrieval_deepspeed2.py \
+    --deepspeed_config oscar/tmp_config.json \
+    --model_name_or_path vinvl/coco_ir/base/checkpoint-1340000_extra \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_test \
+    --do_eval \
+    --test_split train \
+    --num_captions_per_img_val 20 \
+    --num_images_per_cap_val 20 \
+    --eval_caption_index_file train_sub_preranking_bert.pt \
+    --eval_image_index_file train_sub_preranking_bert.pt \
+    --train_sub_index train_sub_preranking_bert.pt \
+    --eval_img_keys_file train_img_keys.tsv \
+    --per_gpu_eval_batch_size 32 \
+    --eval_model_dir output_fk/less_train/checkpoint-29-13620 \
+    --output_dir evaluate_fk/both \
+    --concept2id_file extra_concept2id.pt \
+    --extra_concept \
+    --num_extra_concept 20 \
+    --try_reranking \
+    --less_cap_train \
+    --num_captions_per_img_train 4 \
+    --iter_pf
+
+
+
+
+deepspeed --include localhost:0,1,2,3 oscar/run_retrieval_deepspeed2.py \
+    --deepspeed_config oscar/tmp_config.json \
+    --model_name_or_path vinvl/coco_ir/base/checkpoint-1340000_extra \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_train \
+    --do_lower_case \
+    --per_gpu_train_batch_size 64 \
+    --learning_rate 0.00002 \
+    --num_train_epochs 30 \
+    --weight_decay 0.05 \
+    --save_steps 1000 \
+    --add_od_labels \
+    --od_label_type vg \
+    --max_seq_length 70 \
+    --max_img_seq_length 70 \
+    --evaluate_during_training \
+    --num_captions_per_img_val 20 \
+    --num_images_per_cap_val 20 \
+    --train_sub_index train_sub_preranking.pt \
+    --eval_caption_index_file val_pre_ranking2.pt \
+    --eval_image_index_file val_pre_ranking2.pt \
+    --less_cap_train \
+    --num_captions_per_img_train 4 \
+    --output_dir output_fk/less_train \
+    --extra_concept \
+    --clip_neg_sampling \
+    --clip_neg_prob 0.5 \
+    --num_extra_concept 20 \
+    --concept2id_file extra_concept2id.pt \
+    --try_reranking
+
+
+deepspeed --include localhost:0,1 oscar/run_get_concept.py \
+    --deepspeed_config oscar/tmp_config.json \
+    --model_name_or_path vinvl/coco_ir/base/checkpoint-1340000_extra \
+    --data_dir vinvl/datasets/fk_ir \
+    --per_gpu_train_batch_size 16 \
+    --do_test \
+    --do_eval \
+    --per_gpu_eval_batch_size 128 \
+    --eval_model_dir output_fk/oscar_ph/checkpoint-7-3000 \
+    --output_dir evaluate_fk/both \
+    --concept2id_file extra_concept2id.pt \
+    --extra_concept \
+    --num_extra_concept 20
+
+
+deepspeed --include localhost:0,1,2,3 oscar/run_task1_deepspeed.py \
+    --deepspeed_config oscar/tmp_config.json \
+    --model_name_or_path vinvl/coco_ir/base/checkpoint-1340000_extra \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_test \
+    --do_eval \
+    --test_split test \
+    --num_captions_per_img_val 20 \
+    --num_captions_per_img_train 4 \
+    --num_images_per_cap_val 20 \
+    --eval_caption_index_file test_pre_ranking2.pt \
+    --eval_image_index_file test_pre_ranking2.pt \
+    --eval_img_keys_file test_img_keys.tsv \
+    --per_gpu_eval_batch_size 64 \
+    --eval_model_dir output_fk/attn/checkpoint-29-27210 \
+    --output_dir evaluate_fk/both \
+    --concept2id_file extra_concept2id.pt \
+    --extra_concept \
+    --num_extra_concept 20 \
+    --try_reranking \
+    --test_prf 0 \
+    --try_reranking \
+    --bg_seq_len 80 \
+    --bg_con_num 40 \
+    --att_mask_type SG
+
+
+
+
+deepspeed --include localhost:0,1,2,3 oscar/run_task1_deepspeed2.py \
+    --deepspeed_config oscar/tmp_config.json \
+    --model_name_or_path vinvl/coco_ir/base/checkpoint-1340000_extra \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_train \
+    --do_lower_case \
+    --per_gpu_train_batch_size 32 \
+    --per_gpu_eval_batch_size 64 \
+    --learning_rate 0.00002 \
+    --num_train_epochs 30 \
+    --weight_decay 0.05 \
+    --save_steps 2000 \
+    --add_od_labels \
+    --od_label_type vg \
+    --max_seq_length 70 \
+    --max_img_seq_length 70 \
+    --evaluate_during_training \
+    --eval_caption_index_file val_pre_ranking2.pt \
+    --eval_image_index_file val_pre_ranking2.pt \
+    --num_captions_per_img_val 20 \
+    --num_images_per_cap_val 20 \
+    --train_sub_index train_sub_preranking.pt \
+    --less_cap_train \
+    --num_captions_per_img_train 4 \
+    --output_dir output_fk/oscar_p \
+    --extra_concept \
+    --clip_neg_sampling \
+    --clip_neg_prob 0.5 \
+    --num_extra_concept 20 \
+    --concept2id_file extra_concept2id.pt \
+    --try_reranking \
+    --bg_seq_len 80 \
+    --bg_con_num 40 \
+    --include_noise \
+    --neg_con_detect 2 \
+    --con_lambda 0 \
+    --att_mask_type SG
+
+
+deepspeed --include localhost:4,5,6 oscar/run_task1_deepspeed.py \
+    --deepspeed_config oscar/tmp_config.json \
+    --model_name_or_path vinvl/coco_ir/base/checkpoint-1340000_extra \
+    --data_dir vinvl/datasets/fk_ir \
+    --do_train \
+    --do_lower_case \
+    --per_gpu_train_batch_size 32 \
+    --per_gpu_eval_batch_size 64 \
+    --learning_rate 0.00002 \
+    --num_train_epochs 30 \
+    --weight_decay 0.05 \
+    --save_steps 3000 \
+    --add_od_labels \
+    --od_label_type vg \
+    --max_seq_length 70 \
+    --max_img_seq_length 70 \
+    --evaluate_during_training \
+    --eval_caption_index_file val_pre_ranking2.pt \
+    --eval_image_index_file val_pre_ranking2.pt \
+    --num_captions_per_img_val 20 \
+    --num_images_per_cap_val 20 \
+    --train_sub_index train_sub_preranking.pt \
+    --less_cap_train \
+    --num_captions_per_img_train 4 \
+    --output_dir output_fk/oscar_ph \
+    --extra_concept \
+    --clip_neg_sampling \
+    --clip_neg_prob 0.5 \
+    --num_extra_concept 20 \
+    --concept2id_file extra_concept2id.pt \
+    --try_reranking \
+    --bg_seq_len 80 \
+    --bg_con_num 40 \
+    --include_noise \
+    --att_mask_type SG
