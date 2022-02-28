@@ -1,4 +1,4 @@
-# MVP: Multi-Stage Vision-Language Pre-Training via Multi-Level Semantic Alignment
+# MVPTR: Multi-Stage Vision-Language Pre-Training via Multi-Level Semantic Alignment
 
 ## Introduction
 
