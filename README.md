@@ -2,9 +2,9 @@
 
 ## Introduction
 
-This repository is the implementation of our project [MVP: Multi-Stage Vision-Language Pre-Training via Multi-Level Semantic Alignment](https://arxiv.org/abs/2201.12596). In this paper, we propose to explicitly align vision and language at multiple levels. In MVP, we firstly introduce concepts in both modalities to construct two-level semantic representations for language and vision, then we design a 2-stage pre-training framework to learn intra-modal and cross-modal interaction respectively. The procedure is illustrated in the figure below:
+This repository is the implementation of our project [MVPTR: Multi-Stage Vision-Language Pre-Training via Multi-Level Semantic Alignment](https://arxiv.org/abs/2201.12596). In this paper, we propose to explicitly align vision and language at multiple levels. In MVP, we firstly introduce concepts in both modalities to construct two-level semantic representations for language and vision, then we design a 2-stage pre-training framework to learn intra-modal and cross-modal interaction respectively. The procedure is illustrated in the figure below:
 
-![MVP](./figs/MVP.png)
+![MVPTR](./figs/MVP.png)
 
 Our implementation is based on the project [Oscar&VinVL](https://github.com/microsoft/Oscar), many thanks to Microsoft for the open-source resource.
 
@@ -17,7 +17,7 @@ We pre-trained our MVP model with the base-setting and evaluate it on image-text
 | Metric | IR R@1 | TR R@1 | IR R@1 | TR R@1 | Test-dev | Test-std |  Val/Test   |
 | ALBEF  |  56.8  |  73.1  |  82.8  |  94.3  |  74.54   |  74.70   | 80.14/80.30 |
 | VinVL  |  58.1  |  74.6  |   -    |   -    |  75.95   |  76.12   |    - / -    |
-| MVP    |  60.1  |  77.3  |  84.0  |  95.2  |  76.16   |  76.36   | 80.30/80.17 |
+| MVPTR  |  60.1  |  77.3  |  84.0  |  95.2  |  76.16   |  76.36   | 80.30/80.17 |
 
 MSCOCO: 5k test; IR: Image Retrieval; TR: Text Retrieval, R@1: Recall at 1, VQA: VQA v2
 
@@ -63,7 +63,7 @@ To download extracted features used in VinVL and MVP, it is recommended to use [
 
 As the original pre-trained VinVL uses the test split of Flickr30k during pre-training, we exclude those data and pre-train our MVP to avoid the information leaking:
 
-1. Download the pre-trained checkpoint for flickr30k retrieval:
+1. Download the pre-trained checkpoint for flickr30k retrieval: [mvp_base_for_fk](https://drive.google.com/file/d/19L2ej4s-fhm5qCQzI2g3pxgVIrdd9FeV/view?usp=sharing)
 
 2. Download the extracted features and captions from: [fk_ir](https://drive.google.com/file/d/1L4xXrk3q0e6DsBiucJkUFWbxqPLtzRjY/view?usp=sharing)
 
@@ -115,7 +115,7 @@ We found that MVP quickly converges to the best performance within 2 epochs.
    path/to/azcopy copy 'https://biglmdiag.blob.core.windows.net/vinvl/datasets/coco_ir' datasets/ --recursive
    ```
 
-3. Download the pre-trained checkpoint
+3. Download the pre-trained checkpoint: [mvp_base_for_coco](https://drive.google.com/file/d/1VUl9TbtkKYB8BDc9Xk-a9G0XYTnyUwpz/view?usp=sharing)
 
 4. Training with evaluation on the 1k minival split:
 
@@ -152,7 +152,7 @@ We found that MVP quickly converges to the best performance within 2 epochs.
 
 ### VQA
 
-1. In VQA, we found it useful to initialize the classifier head with the weights used in MLM task, the initialized checkpoint can be downloaded from:
+1. In VQA, we found it useful to initialize the classifier head with the weights used in MLM task, the initialized checkpoint can be downloaded from: [mvp_base_for_vqa](https://drive.google.com/file/d/1QsUHakD1tEip7txe7BUiMgDcnI1AtOva/view?usp=sharing)
 
 2. Download vqa dataset:
 
