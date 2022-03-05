@@ -53,7 +53,7 @@ To transform image-text pairs to fit the MVP input, there are several steps:
 2. Only general phrases which appear in at least 50 sentences in the pre-training corpus are considered, the id2phrase mapping is stored in [id2phrase](). Extracted phrases for coco, Flickr, vqa, visual entailment, referring expression can be downloaded from [here](https://drive.google.com/file/d/1fl8vXvxw9ZXmLaQ6a_4KrM-Zi1w_PgwN/view?usp=sharing).
 3. Object features and tags are extracted from images with [the object detector used in VinVL](https://github.com/microsoft/scene_graph_benchmark).
 
-For dataset list below, preprocessed data is provided, if you need to adopt MVP to other dataset, please follow the steps.
+For dataset list below, preprocessed data is provided, if you need to adopt MVP to other dataset, please follow the steps in [INSTRUCTIONS](https://github.com/Junction4Nako/mvp_pytorch/edit/master/INSTRUCTIONS.md).
 
 To download extracted features used in VinVL and MVP, it is recommended to use [azcopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10#download-azcopy).
 
@@ -264,6 +264,9 @@ Here is the detailed evaluation results from the VQA challange on EvalAI:
        --bivinvl_id2phrase datasets/mvp/id2phrase_new.json \
        --data_file datasets/re/ve_splits.json --phrase_layer 2
    ```
+
+### Other Tasks
+To adapt MVPTR to other tasks and datasets, we provide a detailed instructions in [INSTRUCTIONS](https://github.com/Junction4Nako/mvp_pytorch/edit/master/INSTRUCTIONS.md)
 
 ## Citations
 
