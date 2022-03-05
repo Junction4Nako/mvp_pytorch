@@ -21,7 +21,6 @@ On the vision side, we use the VinVL object detector to extract object-level fea
    - Extract the tsv-format features from images in your data directory;
 
    -  Each line in the tsv file contains the extracted object tags and base64-encoded dense features, decode it into numpy arrays, we provide a simple example here:
-
      ```python
      import numpy as np
      import base64, json
