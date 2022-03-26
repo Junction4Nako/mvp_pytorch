@@ -2504,3 +2504,54 @@ class BiImageBertForRetrieval2(BertPreTrainedModel):
         # outputs = (prediction_scores, seq_relationship_score,) + outputs[2:]  # add hidden states and attention if they are here
 
         return seq_relationship_score  # (loss), prediction_scores, seq_relationship_score, (hidden_states), (attentions)
+
+
+class BiImageBertRep(BertPreTrainedModel):
+    """
+    Modified from BertForSequenceClassification to support oscar training.
+    """
+    def __init__(self, config):
+        super(BiImageBertRep, self).__init__(config)
+        self.num_labels = 1
+        self.loss_type = config.loss_type
+        self.config = config
+        if config.img_feature_dim > 0:
+            self.bert = BiBertImgModel(config)
+        else:
+            self.bert = BertModel(config)
+        self.dropout = nn.Dropout(config.hidden_dropout_prob)
+        self.apply(self.init_weights)
+
+    def init_code_embedding(self, em):
+        self.bert.code_embeddings.weight.data = em.clone()
+
+    def freeze_backbone(self):
+        for param in self.bert.parameters():
+            param.requires_grad = False
+
+    def unfreeze_backbone(self):
+        for param in self.bert.parameters():
+            param.requires_grad = True
+
+    def forward(self, input_ids_a, token_type_ids_a=None, attention_mask_a=None, 
+            input_ids_b=None, token_type_ids_b=None, attention_mask_b=None, max_tag_length=20,
+            position_ids_a=None, position_ids_b=None, head_mask=None, img_feats=None):
+        """
+        input_ids_a: [batch_size, max_length] input token ids for text sequence
+        token_type_ids_a: [batch_size, max_length] input segment ids for text sequence
+        attention_mask_a: [batch_size, max_length] indicate the valid sequence
+        position_ids_a: [batch_size, max_length], can be None (processed in self.bert)
+        input_ids_b: [batch_size, max_tag_length] input token ids for text sequence
+        token_type_ids_b: [batch_size, max_tag_length] input segment ids for text sequence
+        attention_mask_b: [batch_size, max_tag_length] indicate the valid sequence
+        position_ids_a: [batch_size, max_tag_length], can be None (processed in self.bert)
+        img_feats: [batch_size, max_img_length, feature_dim], the image feature sequence
+        """
+        outputs, single_stream_output, hard_indexes = self.bert(input_ids_a=input_ids_a, position_ids_a=position_ids_a, token_type_ids_a=token_type_ids_a,
+                        attention_mask_a=attention_mask_a, head_mask=head_mask, img_feats=img_feats,
+                        input_ids_b=input_ids_b, position_ids_b=position_ids_b, token_type_ids_b=token_type_ids_b,
+                        attention_mask_b=attention_mask_b, max_tag_length=max_tag_length, encode_hn=False)
+
+        sequence_output, pooled_output, hard_sequence_output, hard_pooled_output = outputs
+
+        return sequence_output, pooled_output
