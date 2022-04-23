@@ -2513,7 +2513,7 @@ class BiImageBertRep(BertPreTrainedModel):
     def __init__(self, config):
         super(BiImageBertRep, self).__init__(config)
         self.num_labels = 1
-        self.loss_type = config.loss_type
+        # self.loss_type = config.loss_type
         self.config = config
         if config.img_feature_dim > 0:
             self.bert = BiBertImgModel(config)
@@ -2554,4 +2554,94 @@ class BiImageBertRep(BertPreTrainedModel):
 
         sequence_output, pooled_output, hard_sequence_output, hard_pooled_output = outputs
 
-        return sequence_output, pooled_output
+        return sequence_output, pooled_output, single_stream_output[:2]
+
+class BiBertImgForMLM(ImgPreTrainedModel): # a version with weakly-supervised grounding
+    r"""
+        **masked_lm_labels**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
+            Labels for computing the masked language modeling loss.
+            Indices should be in ``[-1, 0, ..., config.vocab_size]`` (see ``input_ids`` docstring)
+            Tokens with indices set to ``-1`` are ignored (masked), the loss is only computed for the tokens with labels
+            in ``[0, ..., config.vocab_size]``
+        **next_sentence_label**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
+            Labels for computing the next sequence prediction (classification) loss. Input should be a sequence pair (see ``input_ids`` docstring)
+            Indices should be in ``[0, 1]``.
+            ``0`` indicates sequence B is a continuation of sequence A,
+            ``1`` indicates sequence B is a random sequence.
+
+    Outputs: `Tuple` comprising various elements depending on the configuration (config) and inputs:
+        **loss**: (`optional`, returned when both ``masked_lm_labels`` and ``next_sentence_label`` are provided) ``torch.FloatTensor`` of shape ``(1,)``:
+            Total loss as the sum of the masked language modeling loss and the next sequence prediction (classification) loss.
+        **prediction_scores**: ``torch.FloatTensor`` of shape ``(batch_size, sequence_length, config.vocab_size)``
+            Prediction scores of the language modeling head (scores for each vocabulary token before SoftMax).
+        **seq_relationship_scores**: ``torch.FloatTensor`` of shape ``(batch_size, sequence_length, 2)``
+            Prediction scores of the next sequence prediction (classification) head (scores of True/False continuation before SoftMax).
+        **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
+            list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)
+            of shape ``(batch_size, sequence_length, hidden_size)``:
+            Hidden-states of the model at the output of each layer plus the initial embedding outputs.
+        **attentions**: (`optional`, returned when ``config.output_attentions=True``)
+            list of ``torch.FloatTensor`` (one for each layer) of shape ``(batch_size, num_heads, sequence_length, sequence_length)``:
+            Attentions weights after the attention softmax, used to compute the weighted average in the self-attention heads.
+
+    Examples::
+
+        >>> config = BertConfig.from_pretrained('bert-base-uncased')
+        >>> tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+        >>>
+        >>> model = BertImgForPreTraining(config)
+        >>> input_ids = torch.tensor(tokenizer.encode("Hello, my dog is cute")).unsqueeze(0)  # Batch size 1
+        >>> outputs = model(input_ids)
+        >>> prediction_scores, seq_relationship_scores = outputs[:2]
+
+    """
+    config_class = BertConfig
+    pretrained_model_archive_map = BERT_PRETRAINED_MODEL_ARCHIVE_MAP
+    load_tf_weights = load_tf_weights_in_bert
+    base_model_prefix = "bert"
+
+    def __init__(self, config):
+        super(BiBertImgForMLM, self).__init__(config)
+
+        #self.bert = BertModel(config) # original BERT
+        self.bert = BiBertImgModel(config)
+        self.cls = BertPreTrainingHeads(config, only_vocab=True)
+        self.half_mlm = BertLMPredictionHead(config, only_vocab=True)
+        self.only_vocab_size = config.only_word_size
+        self.num_seq_relations = config.num_contrast_classes if hasattr(config, "num_contrast_classes") else 2
+        self.max_text_seq_length = config.max_text_seq_length if hasattr(config, "max_text_seq_length") else None
+        self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
+        # self.max_text_seq_length = None
+
+        self.apply(self.init_weights)
+
+    def init_weights(self, module):
+        """ Initialize the weights.
+        """
+        if isinstance(module, (nn.Linear, nn.Embedding)):
+            # Slightly different from the TF version which uses truncated_normal for initialization
+            # cf https://github.com/pytorch/pytorch/pull/5617
+            module.weight.data.normal_(mean=0.0,
+                                       std=self.config.initializer_range)
+        elif isinstance(module, BertLayerNorm):
+            module.bias.data.zero_()
+            module.weight.data.fill_(1.0)
+        if isinstance(module, nn.Linear) and module.bias is not None:
+            module.bias.data.zero_()
+
+    def forward(self, input_ids_a, token_type_ids_a=None, attention_mask_a=None, 
+            input_ids_b=None, token_type_ids_b=None, attention_mask_b=None, max_tag_length=20,
+            position_ids_a=None, position_ids_b=None, head_mask=None, img_feats=None):
+        outputs, single_stream_output, hard_indexes = self.bert(input_ids_a=input_ids_a, position_ids_a=position_ids_a, token_type_ids_a=token_type_ids_a,
+                            attention_mask_a=attention_mask_a, head_mask=head_mask, img_feats=img_feats,
+                            input_ids_b=input_ids_b, position_ids_b=position_ids_b, token_type_ids_b=token_type_ids_b,
+                            attention_mask_b=attention_mask_b, max_tag_length=max_tag_length, encode_hn=False)
+
+        txt_encoder_outputs, vis_encoder_outputs, sim_mat = single_stream_output
+        sequence_output, pooled_output, hard_sequence_output, hard_pooled_output = outputs
+        lm_mask = input_ids_a == 103 # [MASK]
+        masked_sequence_output = torch.masked_select(sequence_output[:, :input_ids_a.shape[1], :], lm_mask.unsqueeze(-1)).reshape(-1, self.config.hidden_size)
+        prediction_scores, seq_relationship_score = self.cls(masked_sequence_output, pooled_output)
+        return prediction_scores, seq_relationship_score  # (loss), prediction_scores, seq_relationship_score, (hidden_states), (attentions)
+
+
