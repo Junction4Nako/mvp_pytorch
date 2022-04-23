@@ -23,9 +23,7 @@ MSCOCO: 5k test; IR: Image Retrieval; TR: Text Retrieval, R@1: Recall at 1, VQA:
 
 For full results, please refer to our paper.
 
-## Installation & Usage
-
-### Installation
+## Installation
 
 ```bash
 # create environment
@@ -53,9 +51,52 @@ To transform image-text pairs to fit the MVP input, there are several steps:
 2. Only general phrases which appear in at least 50 sentences in the pre-training corpus are considered, the id2phrase mapping is stored in [id2phrase](). Extracted phrases for coco, Flickr, vqa, visual entailment, referring expression can be downloaded from [here](https://drive.google.com/file/d/1fl8vXvxw9ZXmLaQ6a_4KrM-Zi1w_PgwN/view?usp=sharing).
 3. Object features and tags are extracted from images with [the object detector used in VinVL](https://github.com/microsoft/scene_graph_benchmark).
 
-For dataset list below, preprocessed data is provided, if you need to adopt MVP to other dataset, please follow the steps in [INSTRUCTIONS](https://github.com/Junction4Nako/mvp_pytorch/edit/master/INSTRUCTIONS.md).
-
 To download extracted features used in VinVL and MVP, it is recommended to use [azcopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10#download-azcopy).
+
+## Usage
+
+For the convenience of usage, we considered three different scenarios:
+- To grasp a , please check the Quick Start section.
+- To utilize MVPTR on the already-implemented tasks (image text retrieval, vqa, SNLI-VE, Referring Expression), please check the  section that corresponds to the task and dataset.
+- To fine-tune MVPTR on datasets that are not considered in our experiments, please check the Fine-Tuning on Custom Datasets section.
+
+### Prepare the Tools
+
+If you are willing to use the pipeline or fine-tune on your custom data, several tools need to be prepared before you start:
+
+1. The object detector used to extract region features, we provide a torchscripted version of VinVL, which is a simple .pt file and can be directly used by:
+
+   ```python
+   import torchvision, torch
+   od_model = torch.jit.load('OD_MODAL_PATH')
+   ```
+
+   You can download it from (to be uploaded, coming soon)
+
+2. The SPICE parser to extract phrases from texts, we provide a script to help you:
+
+   ```bash
+   bash tools/prepare_spice.sh
+   ```
+
+   
+
+### Quick Start
+
+We provide a complete pipeline of MVPTR which performs masked language model or generates contextual representations directly from the image-text input, it can be used only for inference (the encoded representations can be freezed and used for your own tasks).
+
+You can quickly test MVPTR by using the mlm pipeline:
+
+```python
+from oscar.modeling.modeling_pipeline import InferencePipeline
+
+pipeline = InferencePipeline(model_name='mlm', model_path='pretrained_models/base/', 'OD_MODEL_PATH', od_config_dir='tools/configs/', parser_path='tools/spice', id2phrase='datasets/mvp/id2phrase_new.json')
+print(inference.inference('figs/coco_test.jpg', 'two [MASK] are playing on a ground'))
+```
+
+Based on the image, our model generates the "dogs" output:
+
+![coco_test](./figs/coco_test.jpg)
 
 ### Image-Text Retrieval
 
