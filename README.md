@@ -306,8 +306,103 @@ Here is the detailed evaluation results from the VQA challange on EvalAI:
        --data_file datasets/re/ve_splits.json --phrase_layer 2
    ```
 
-### Other Tasks
-To adapt MVPTR to other tasks and datasets, we provide a detailed instructions in [INSTRUCTIONS](https://github.com/Junction4Nako/mvp_pytorch/edit/master/INSTRUCTIONS.md)
+### Fine-Tuning on Custom Datasets
+
+As MVPTR relies on region-based feature and extracted phrases, the whole dataset needs to be processed to extract and store the features, which will improve the training efficiency than the pipeline.
+
+ #### Data Preparation
+
+For input image-text pairs, you need to configure them into a list of dictionaries as:
+
+```json
+[{'text': 'A child holding a flowered umbrella and petting a yak.',
+  'image_id': 'test_img',
+  'label': 1},
+ {'text': 'A narrow kitchen filled with appliances and cooking utensils.',
+  'image_id': 'test_img1',
+  'label': 1}]
+```
+
+then you can simply runs the following comman to extract the phrases and get the output:
+
+```bash
+bash tools/phrase_parse.sh YOUR_INPUT_DATA
+```
+
+the output is named as "processed_YOUR_INPUT_DATA" should be like:
+
+```json
+[{'text': 'A child holding a flowered umbrella and petting a yak.',
+  'image_id': 'test_img',
+  'label': 1,
+  'phrases': [['child'], ['umbrella'], ['umbrella', 'flowered'], ['yak']]},
+ {'text': 'A narrow kitchen filled with appliances and cooking utensils.',
+  'image_id': 'test_img1',
+  'label': 1,
+  'phrases': [['appliance'],
+   ['kitchen'],
+   ['kitchen', 'fill with', 'appliance'],
+   ['kitchen', 'fill with', 'utensil'],
+   ['kitchen', 'narrow'],
+   ['utensil'],
+   ['utensil', 'cooking']]}]
+```
+
+For images, put all images into a directory "YOUR_IMAGE_DIR", then run:
+
+```bash
+python3 tools/img_feat_extract.py --vinvl_od_path tools/DOWNLOADED_OD_MODEL \
+    --image_dir YOUR_IMAGE_DIR  --od_config_dir tools/configs/  --device cuda
+```
+
+This will generate a predictions.tsv file containing the extracted features.
+
+Please ensure that the image filename is the same as the ones in your input data processed above (or you can make your own mapping and implement it).
+
+#### General Dataset
+
+To help you understand the construction process of inputs, we provide a general dataset implementation:
+
+```python
+from oscar.datasets.general_dataset import MVPTRDataset
+
+test_dataset = MVPTRDataset(tokenizer_path='pretrained_models/base/', img_feat_file='YOUR_IMAGE_DIR/predictions.tsv', input_data='processed_YOUR_INPUT_DATA', id2phrase='datasets/mvp/id2phrase.json', max_seq_length=50, max_img_seq_length=50, max_tag_length=20, max_phrases=5)
+
+# sample output
+index, [input_ids_a, input_mask_a, segment_ids_a, input_ids_b, input_mask_b, segment_ids_b, img_feat] = test_dataset[index]
+"""
+input_ids_a:   shape [max_seq_length+max_phrases], encoded tokens and phrases
+input_mask_a:  shape [max_seq_length+max_phrases], attention mask of textual sequence
+segment_ids_a: shape [max_seq_length+max_phrases], token type ids of textual sequence 
+input_ids_b:   shape [max_tag_length],             encoded object tags
+input_mask_b:  shape [max_tag_length+max_img_seq_length], attention mask of visual sequence
+segment_ids_b: shape [max_tag_length+max_img_seq_length], token type ids of visual sequence
+img_feat:      shape [max_img_seq_length, 2054],         extracted object features
+"""
+```
+
+#### Model Input & Output
+
+Here we provide a example to illustrate the normal input and output
+
+```python
+from oscar.modeling import BiImageBertRep
+
+model = BiImageBertRep.from_pretrained('pretrained_models/base/')
+# sample output
+sequence_output, pooled_output, single_stream_output = model(input_ids_a=input_ids_a, attention_mask_a=input_mask_a, token_type_ids_a=segment_ids_a, input_ids_b=input_ids_b, attention_mask_b=input_mask_b, token_type_ids_b=segment_ids_b, img_feats=img_feat, max_tag_length=max_tag_length)
+text_encoder_output, vis_encoder_output = single_stream_output
+"""
+sequence_output:   shape [batch_size, max_seq_length+max_phrases+max_img_seq_length, 768], encoded representations of {cls, tokens, phrases, region_features}
+pooled_output:  shape [batch_size, 768], 
+text_encoder_output: shape [batch_size, max_seq_length+max_phrases, 768], textual encoder's output of {cls, tokens, phrases} 
+vis_encoder_output:   shape [batch_size, max_img_seq_length+max_tag_length, 768], visual encoder's output of {cls, object tags, regions_features}
+"""
+```
+
+You can modify the BiImageBertRep to fit your input and output.
+
+There is an detailed step-by-step version of instructions in [INSTRUCTIONS.md](https://github.com/Junction4Nako/mvp_pytorch/blob/master/INSTRUCTIONS.md),  you can also check the pipeline implementation to check the working logic.
 
 ## Citations
 
