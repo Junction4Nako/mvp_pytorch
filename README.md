@@ -97,7 +97,7 @@ Based on the image, our model generates the "dogs" output:
 
 ![coco_test](./figs/coco_test.jpg)
 
-If you change the model_name from "mlm" to "embedding", the pipeline generates the contextual representations of all tokens, phrase concepts and regions, which can be used for downstream task.
+If you change the model_name from "mlm" to "embedding", the pipeline generates the contextual representations of all tokens, phrase concepts and regions, which can be used for downstream task (both cross-modal output and uni-modal output).
 
 Notice that it is not recommended to use the pipeline for fine-tuning, but you can refer to the implementation of the pipeline to better understand how to use MVPTR. If you need to fine-tune the MVPTR, you need to first extract and regions features and phrases, please refer to the sub-sections below.
 
