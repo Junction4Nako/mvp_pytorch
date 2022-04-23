@@ -56,7 +56,7 @@ To download extracted features used in VinVL and MVP, it is recommended to use [
 ## Usage
 
 For the convenience of usage, we considered three different scenarios:
-- To grasp a , please check the Quick Start section.
+- For a quick start to use MVPTR, we provide a complete pipeline which takes raw image-text pairs as inputs, please check the Quick Start section.
 - To utilize MVPTR on the already-implemented tasks (image text retrieval, vqa, SNLI-VE, Referring Expression), please check the  section that corresponds to the task and dataset.
 - To fine-tune MVPTR on datasets that are not considered in our experiments, please check the Fine-Tuning on Custom Datasets section.
 
@@ -80,12 +80,11 @@ If you are willing to use the pipeline or fine-tune on your custom data, several
    ```
 
    
-
 ### Quick Start
 
 We provide a complete pipeline of MVPTR which performs masked language model or generates contextual representations directly from the image-text input, it can be used only for inference (the encoded representations can be freezed and used for your own tasks).
 
-You can quickly test MVPTR by using the mlm pipeline:
+You can quickly test MVPTR, first download [pretrained_base](https://drive.google.com/file/d/1t9S9ejwpit7UO_Y5f9pYnn7p9g-AtWtC/view?usp=sharing) to pretrained_mdoels/base and use the mlm pipeline:
 
 ```python
 from oscar.modeling.modeling_pipeline import InferencePipeline
@@ -97,6 +96,10 @@ print(inference.inference('figs/coco_test.jpg', 'two [MASK] are playing on a gro
 Based on the image, our model generates the "dogs" output:
 
 ![coco_test](./figs/coco_test.jpg)
+
+If you change the model_name from "mlm" to "embedding", the pipeline generates the contextual representations of all tokens, phrase concepts and regions, which can be used for downstream task.
+
+Notice that it is not recommended to use the pipeline for fine-tuning, but you can refer to the implementation of the pipeline to better understand how to use MVPTR. If you need to fine-tune the MVPTR, you need to first extract and regions features and phrases, please refer to the sub-sections below.
 
 ### Image-Text Retrieval
 
