@@ -23,7 +23,7 @@ from transformers.pytorch_transformers import AdamW, WarmupLinearSchedule, Warmu
 
 class MVPTRDataset(Dataset):
     """ Image/Text Retrieval Dataset"""
-    def __init__(self, tokenizer_path, img_feat_file, input_data, id2phrase, max_seq_length=30, max_img_seq_length=50,
+    def __init__(self, tokenizer_path, img_feat_file, input_data, id2phrase='datasets/mvp/id2phrase_new.json', max_seq_length=30, max_img_seq_length=50,
                 max_tag_length=20, max_phrases=5):
         """
         tokenizer_path: path to load bert tokenizer to process caption text.
