@@ -64,7 +64,7 @@ For the convenience of usage, we considered three different scenarios:
 
 If you are willing to use the pipeline or fine-tune on your custom data, several tools need to be prepared before you start:
 
-1. The object detector used to extract region features, we provide a torchscripted version of VinVL, which is a simple .pt file and can be directly used by:
+1. The object detector used to extract region features, we provide a [torchscripted version of VinVL](https://drive.google.com/file/d/1gKlE-uzjGC7HbRawTZgj4Nrvy-LuQpyE/view?usp=sharing), which is a simple .pt file and can be directly used by:
 
    ```python
    import torchvision, torch
