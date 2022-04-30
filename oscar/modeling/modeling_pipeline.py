@@ -16,7 +16,7 @@ def cpu_numpy(input_tensor):
     return input_tensor.cpu().numpy()
 
 class InferencePipeline(object):
-    def __init__(self, model_name, model_path, object_detector_path, od_config_dir, parser_path, id2phrase, max_seq_length=30, max_img_seq_length=50,
+    def __init__(self, model_name, model_path, object_detector_path, od_config_dir='tools/configs/', parser_path='tools/spice', id2phrase='datasets/mvp/id2phrase_new.json', max_seq_length=30, max_img_seq_length=50,
                 max_tag_length=20, max_phrases=5, device='cuda:0'):
         print("creating a MVPTR inference pipeline...")
         print('loading a {} model from {}'.format(model_name, model_path))
@@ -32,18 +32,29 @@ class InferencePipeline(object):
         self.od_model = torch.jit.load(object_detector_path).to(self.device)
         self.od_model.eval()
         print('loading the object detector configs in {}'.format(od_config_dir))
-        self.transform_cfg = json.load(open(os.path.join(od_config_dir, 'vinvl_transform.json'), 'r'))
-        self.img_transform = build_transforms(self.transform_cfg)
-        label_map = json.load(open(os.path.join(od_config_dir,'VG-SGG-dicts-vgoi6-clipped.json')))['label_to_idx']
-        self.label_map = {v:k for k,v in label_map.items()}
+        try:
+            self.transform_cfg = json.load(open(os.path.join(od_config_dir, 'vinvl_transform.json'), 'r'))
+            self.img_transform = build_transforms(self.transform_cfg)
+            label_map = json.load(open(os.path.join(od_config_dir,'VG-SGG-dicts-vgoi6-clipped.json')))['label_to_idx']
+            self.label_map = {v:k for k,v in label_map.items()}
+        except:
+            print('object detector configs not found in {}, it is supposed be tools/configs/, please specify the correct path \
+                if you are in another directory'.format(od_config_dir))
 
         print('check the scene graph parser in {}'.format(parser_path))
-        assert os.path.exists(os.path.join(parser_path, 'spice-1.0.jar')), 'spice parser not found'
+        assert os.path.exists(os.path.join(parser_path, 'spice-1.0.jar')), 'SPICE parser not found in {}, \
+            it is supposed to be installed in ./tools/spice by tools/prepare_spice.sh, please specify the correct path \
+                if you are in another directory'.format(parser_path)
         self.parser_path = parser_path
         self.phrase_cache_dir = os.path.expanduser('~/.cache/mvptr')
 
         print('loading phrases to id mapping in {}'.format(id2phrase))
-        self.id2sg = json.load(open(id2phrase, 'r'))
+        try:
+            self.id2sg = json.load(open(id2phrase, 'r'))
+        except:
+            print('id2phrase mapping not found in {}, it is supposed be datasets/mvp/id2phrase_new.json, please specify the correct path \
+                if you are in another directory'.format(id2phrase))
+            raise ValueError
         self.sg2id = {tuple(v):int(k) for k,v in self.id2sg.items()}
         self.phrase_vocab_size = len(self.sg2id)
 
