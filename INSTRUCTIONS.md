@@ -43,7 +43,7 @@ On the vision side, we use the VinVL object detector to extract object-level fea
          pos_feat = [box[0]/img_w, box[1]/img_h, box[2]/img_w, box[3]/img_h]
          # normalized box width and height
          pos_feat.extend([pos_feat[2]-pos_feat[0], pos_feat[3]-pos_feat[1]])
-         poas_feat = np.array(pos_feat, dtype=float32) # ensure numpy.float32
+         pos_feat = np.array(pos_feat, dtype=float32) # ensure numpy.float32
          input_obj_feat = np.concatenate([obj_feat, pos_feat]) # 2054-dim
      ```
 
