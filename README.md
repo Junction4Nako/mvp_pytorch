@@ -2,13 +2,11 @@
 
 ## Introduction
 
-This repository is the implementation of our project [MVPTR: Multi-Stage Vision-Language Pre-Training via Multi-Level Semantic Alignment](https://arxiv.org/abs/2201.12596). In this paper, we propose to explicitly align vision and language at multiple levels. In MVP, we firstly introduce concepts in both modalities to construct two-level semantic representations for language and vision, then we design a 2-stage pre-training framework to learn intra-modal and cross-modal interaction respectively. The procedure is illustrated in the figure below:
+This repository is the implementation of our ACM MM 22 paper [MVPTR: Multi-Stage Vision-Language Pre-Training via Multi-Level Semantic Alignment](https://arxiv.org/abs/2201.12596). In this paper, we propose to explicitly align vision and language at multiple levels. In MVP, we firstly introduce concepts in both modalities to construct two-level semantic representations for language and vision, then we design a 2-stage pre-training framework to learn intra-modal and cross-modal interaction respectively. The procedure is illustrated in the figure below:
 
 ![MVPTR](./figs/MVP.png)
 
 Our implementation is based on the project [Oscar&VinVL](https://github.com/microsoft/Oscar), many thanks to Microsoft for the open-source resource.
-
-Our MVPTR is accepted by ACM MM 22! ^_^
 
 ## Performance
 
