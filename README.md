@@ -8,6 +8,8 @@ This repository is the implementation of our project [MVPTR: Multi-Stage Vision-
 
 Our implementation is based on the project [Oscar&VinVL](https://github.com/microsoft/Oscar), many thanks to Microsoft for the open-source resource.
 
+Our MVPTR is accepted by ACM MM 22! ^_^
+
 ## Performance
 
 We pre-trained our MVP model with the base-setting and evaluate it on image-text retrieval, VQA, visual entailment, and referring expression.
